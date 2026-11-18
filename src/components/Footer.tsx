@@ -15,7 +15,7 @@ export default function Footer({ theme = 'dark' }: FooterProps) {
         <div>
           <h4 className={`text-sm font-semibold uppercase tracking-wider opacity-80 ${textColor}`}>Get in touch:</h4>
           <ul className="mt-3 space-y-2 text-sm opacity-80">
-            <li><a href="mailto:francesco.rocchiccioli.dev@gmail.com" className="hover:underline">francesco.rocchiccioli.02@gmail.com</a></li>
+            <li><a href="mailto:francesco.rocchiccioli.02@gmail.com" className="hover:underline">francesco.rocchiccioli.02@gmail.com</a></li>
             <li className="flex items-center gap-2">
               <img src="/github.png" alt="GitHub" className={`h-4 w-4 object-contain ${iconFilter}`} />
               <a href="https://github.com/TistaMilani" target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>
@@ -26,15 +26,15 @@ export default function Footer({ theme = 'dark' }: FooterProps) {
             </li>
             <li className="flex items-center gap-2">
               <img src="/instagram.png" alt="Instagram" className={`h-4 w-4 object-contain ${iconFilter}`} />
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="hover:underline">Instagram</a>
+              <a href="https://www.instagram.com/tista.milani" target="_blank" rel="noopener noreferrer" className="hover:underline">Instagram</a>
             </li>
             <li className="flex items-center gap-2">
               <img src="/lichess.png" alt="Lichess" className={`h-4 w-4 object-contain ${iconFilter}`} />
               <a href="https://lichess.org/@/TistaMilani" target="_blank" rel="noopener noreferrer" className="hover:underline">Lichess</a>
             </li>
             <li className="flex items-center gap-2">
-              <img src="/chesscom.png" alt="Lichess" className={`h-4 w-4 object-contain ${iconFilter}`} />
-              <a href="https://chess.com/member/tistamilani" target="_blank" rel="noopener noreferrer" className="hover:underline">Chess.com</a>
+              <img src="/chesscom.png" alt="Chess.com" className={`h-4 w-4 object-contain ${iconFilter}`} />
+              <a href="https://www.chess.com/member/tistamilani" target="_blank" rel="noopener noreferrer" className="hover:underline">Chess.com</a>
             </li>
           </ul>
         </div>
