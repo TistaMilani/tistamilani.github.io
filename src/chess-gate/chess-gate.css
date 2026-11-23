@@ -1,0 +1,271 @@
+/* Styles for the chess gate. Everything is prefixed with `cg-` to stay isolated from the site. */
+
+/* ── Overlay / loading screen ─────────────────────────────── */
+
+.cg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  color: var(--text, #d5d5d5);
+  /* Same font as the site (defined in src/index.css). */
+  font-family: var(--font-site, inherit);
+}
+
+/* Background as its own layer, so it can fade while the avatar and name fly. */
+.cg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg, #121212);
+}
+
+.cg-content {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cg-fade {
+  transition: opacity 500ms ease;
+}
+
+.cg-revealing {
+  pointer-events: none;
+}
+
+.cg-revealing .cg-fade {
+  opacity: 0;
+}
+
+.cg-revealing .cg-backdrop {
+  transition-delay: 150ms;
+}
+
+.cg-enter {
+  animation: cg-fade-in 600ms ease backwards;
+}
+
+/* ── Identity (avatar + nickname) ─────────────────────────── */
+
+.cg-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.cg-name {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.cg-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.cg-button {
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  transition: background-color 150ms ease;
+}
+
+.cg-button:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.cg-button-primary {
+  padding: 8px 20px;
+  font-weight: 600;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* ── Level slider ─────────────────────────────────────────── */
+
+.cg-slider {
+  accent-color: #b58863;
+  height: 1.5rem;
+  cursor: pointer;
+}
+
+/* ── Board ────────────────────────────────────────────────── */
+
+.cg-board {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: min(92vw, 62vh, 480px);
+  aspect-ratio: 1;
+  container-type: inline-size;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cg-interactive {
+  touch-action: none;
+}
+
+.cg-interactive .cg-square {
+  cursor: pointer;
+}
+
+.cg-square {
+  position: relative;
+}
+
+.cg-square:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: -3px;
+  z-index: 5;
+}
+
+.cg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cg-piece {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cg-piece-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Fallback when a piece image is missing. */
+.cg-piece-glyph {
+  font-size: 10cqw;
+  line-height: 1;
+}
+.cg-glyph-white {
+  color: #fff;
+  -webkit-text-stroke: 1px #000;
+}
+.cg-glyph-black {
+  color: #000;
+}
+
+.cg-slide {
+  z-index: 2;
+  animation: cg-slide 220ms ease-out;
+}
+
+.cg-ghost {
+  inset: auto;
+  width: 12.5%;
+  height: 12.5%;
+  z-index: 10;
+  transform: scale(1.12);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+}
+
+.cg-dot {
+  position: absolute;
+  left: 36%;
+  top: 36%;
+  width: 28%;
+  height: 28%;
+  z-index: 3;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cg-capture {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cg-hint {
+  z-index: 3;
+  animation: cg-pulse 1.2s ease-in-out infinite;
+}
+
+.cg-coord {
+  position: absolute;
+  z-index: 4;
+  font-size: 2.4cqw;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
+}
+.cg-coord-rank {
+  top: 4%;
+  left: 5%;
+}
+.cg-coord-file {
+  bottom: 4%;
+  right: 6%;
+}
+
+.cg-shake {
+  animation: cg-shake 380ms ease;
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+
+@keyframes cg-slide {
+  from {
+    transform: translate(var(--cg-dx), var(--cg-dy));
+  }
+}
+
+@keyframes cg-shake {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes cg-pulse {
+  50% { opacity: 0.35; }
+}
+
+@keyframes cg-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-slide,
+  .cg-shake,
+  .cg-hint,
+  .cg-enter {
+    animation: none;
+  }
+  .cg-fade {
+    transition: none;
+  }
+}

@@ -1,133 +1,71 @@
 #!/usr/bin/env node
+/**
+ * Generates the site icons from a square source image (default: public/propic.jpg).
+ *
+ *   node scripts/create-favicon.js [source-image]
+ *
+ * Outputs in public/:
+ *   favicon.ico            real ICO containing 16, 32 and 48 px images
+ *   favicon-48x48.png      Google Search needs a multiple of 48 px
+ *   favicon-96x96.png
+ *   favicon-192x192.png
+ *   apple-touch-icon.png   180 px
+ */
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import sharp from 'sharp'
 
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import sharp from 'sharp';
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const OUTPUT_DIR = path.join(__dirname, '..', 'public')
+const SOURCE = process.argv[2] ?? path.join(OUTPUT_DIR, 'propic.jpg')
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const ICO_SIZES = [16, 32, 48]
+const PNG_SIZES = [48, 96, 192]
 
-const GITHUB_USERNAME = 'TistaMilani';
-const PROFILE_PIC_URL = `https://avatars.githubusercontent.com/${GITHUB_USERNAME}`;
-const OUTPUT_DIR = path.join(__dirname, '..', 'public');
-const FAVICON_SIZES = [16, 32, 48, 64, 128, 256];
+const square = (size) => sharp(SOURCE).resize(size, size, { fit: 'cover' }).png().toBuffer()
 
-async function downloadProfilePicture() {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(path.join(OUTPUT_DIR, 'profile-pic.png'));
-    
-    const request = https.get(PROFILE_PIC_URL, (response) => {
-      // Handle redirects
-      if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-        file.close();
-        fs.unlink(path.join(OUTPUT_DIR, 'profile-pic.png'), () => {});
-        // Follow redirect
-        https.get(response.headers.location, (redirectResponse) => {
-          if (redirectResponse.statusCode !== 200) {
-            reject(new Error(`Failed to download profile picture: ${redirectResponse.statusCode}`));
-            return;
-          }
-          
-          const redirectFile = fs.createWriteStream(path.join(OUTPUT_DIR, 'profile-pic.png'));
-          redirectResponse.pipe(redirectFile);
-          
-          redirectFile.on('finish', () => {
-            redirectFile.close();
-            console.log('✅ Downloaded profile picture');
-            resolve();
-          });
-          
-          redirectFile.on('error', (err) => {
-            fs.unlink(path.join(OUTPUT_DIR, 'profile-pic.png'), () => {});
-            reject(err);
-          });
-        }).on('error', (err) => {
-          reject(err);
-        });
-        return;
-      }
-      
-      if (response.statusCode !== 200) {
-        reject(new Error(`Failed to download profile picture: ${response.statusCode}`));
-        return;
-      }
-      
-      response.pipe(file);
-      
-      file.on('finish', () => {
-        file.close();
-        console.log('✅ Downloaded profile picture');
-        resolve();
-      });
-      
-      file.on('error', (err) => {
-        fs.unlink(path.join(OUTPUT_DIR, 'profile-pic.png'), () => {});
-        reject(err);
-      });
-    }).on('error', (err) => {
-      reject(err);
-    });
-  });
-}
+/** Builds an .ico file that embeds PNG images (supported by all current browsers). */
+function buildIco(images) {
+  const header = Buffer.alloc(6)
+  header.writeUInt16LE(0, 0) // reserved
+  header.writeUInt16LE(1, 2) // type: icon
+  header.writeUInt16LE(images.length, 4)
 
-async function createFavicons() {
-  const inputPath = path.join(OUTPUT_DIR, 'profile-pic.png');
-  
-  try {
-    // Create ICO file with multiple sizes
-    const icoBuffer = await sharp(inputPath)
-      .resize(32, 32, { fit: 'cover' })
-      .png()
-      .toBuffer();
-    
-    fs.writeFileSync(path.join(OUTPUT_DIR, 'favicon.ico'), icoBuffer);
-    console.log('✅ Created favicon.ico');
-    
-    // Create PNG favicons for different sizes
-    for (const size of FAVICON_SIZES) {
-      await sharp(inputPath)
-        .resize(size, size, { fit: 'cover' })
-        .png()
-        .toFile(path.join(OUTPUT_DIR, `favicon-${size}x${size}.png`));
-      console.log(`✅ Created favicon-${size}x${size}.png`);
-    }
-    
-    // Create Apple touch icon
-    await sharp(inputPath)
-      .resize(180, 180, { fit: 'cover' })
-      .png()
-      .toFile(path.join(OUTPUT_DIR, 'apple-touch-icon.png'));
-    console.log('✅ Created apple-touch-icon.png');
-    
-    // Clean up temporary file
-    fs.unlinkSync(inputPath);
-    console.log('✅ Cleaned up temporary files');
-    
-  } catch (error) {
-    console.error('❌ Error creating favicons:', error);
-    throw error;
-  }
+  let offset = 6 + 16 * images.length
+  const entries = images.map(({ size, data }) => {
+    const entry = Buffer.alloc(16)
+    entry.writeUInt8(size >= 256 ? 0 : size, 0) // width
+    entry.writeUInt8(size >= 256 ? 0 : size, 1) // height
+    entry.writeUInt8(0, 2) // palette
+    entry.writeUInt8(0, 3) // reserved
+    entry.writeUInt16LE(1, 4) // color planes
+    entry.writeUInt16LE(32, 6) // bits per pixel
+    entry.writeUInt32LE(data.length, 8)
+    entry.writeUInt32LE(offset, 12)
+    offset += data.length
+    return entry
+  })
+  return Buffer.concat([header, ...entries, ...images.map((i) => i.data)])
 }
 
 async function main() {
-  try {
-    console.log(`🔄 Fetching profile picture for ${GITHUB_USERNAME}...`);
-    await downloadProfilePicture();
-    
-    console.log('🔄 Creating favicon files...');
-    await createFavicons();
-    
-    console.log('🎉 Favicon creation complete!');
-    console.log('\nNext steps:');
-    console.log('1. Update your index.html to reference the new favicon');
-    console.log('2. Commit and push the changes');
-    
-  } catch (error) {
-    console.error('❌ Error:', error.message);
-    process.exit(1);
+  console.log(`🔄 Creating icons from ${path.relative(process.cwd(), SOURCE)}`)
+
+  const icoImages = await Promise.all(ICO_SIZES.map(async (size) => ({ size, data: await square(size) })))
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'favicon.ico'), buildIco(icoImages))
+  console.log(`✅ favicon.ico (${ICO_SIZES.join(', ')} px)`)
+
+  for (const size of PNG_SIZES) {
+    fs.writeFileSync(path.join(OUTPUT_DIR, `favicon-${size}x${size}.png`), await square(size))
+    console.log(`✅ favicon-${size}x${size}.png`)
   }
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'apple-touch-icon.png'), await square(180))
+  console.log('✅ apple-touch-icon.png')
 }
 
-main();
+main().catch((err) => {
+  console.error('❌', err.message)
+  process.exit(1)
+})

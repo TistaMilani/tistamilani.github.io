@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 /* Theme variables via data-theme attribute */
+:root {
+  --font-site: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
   --bg: #ffffff;
@@ -16,7 +20,7 @@
 html, body, #root {
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-site);
   transition: background-color 300ms ease, color 300ms ease;
 }
 
