@@ -8,10 +8,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify-puzzles": "node --no-deprecation scripts/verify-puzzles.mjs",
+    "favicon": "node scripts/create-favicon.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "chess.js": "^1.4.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.13"

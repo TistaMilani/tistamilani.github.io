@@ -2,6 +2,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import MainPage from './components/main-page'
 import Footer from './components/Footer'
+import { ChessGate } from './chess-gate'
 import { useEffect, useState } from 'react'
 
 type Theme = 'light' | 'dark'
@@ -26,13 +27,15 @@ function App() {
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar theme={theme} onToggleTheme={toggleTheme} />
-      <div className="flex-1">
-        <MainPage />
+    <ChessGate>
+      <div className="min-h-screen flex flex-col">
+        <Navbar theme={theme} onToggleTheme={toggleTheme} />
+        <div className="flex-1">
+          <MainPage />
+        </div>
+        <Footer theme={theme} />
       </div>
-      <Footer theme={theme} />
-    </div>
+    </ChessGate>
   )
 }
 

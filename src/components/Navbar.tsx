@@ -33,7 +33,8 @@ export default function Navbar({ theme = 'dark', onToggleTheme }: NavbarProps) {
             <div className="mx-auto my-4 w-full max-w-6xl px-4 py-2 md:py-3 flex flex-col sm:flex-row sm:h-16 items-start sm:items-center justify-between gap-2 md:gap-3">
             
                 <div className="flex items-center gap-3 py-2">
-                    <img 
+                    <img
+                        data-chess-gate="avatar"
                         src="/propic.jpg" 
                         alt="Profile" 
                         className="w-16 h-16 rounded object-cover" 
@@ -41,7 +42,7 @@ export default function Navbar({ theme = 'dark', onToggleTheme }: NavbarProps) {
 
                     {/* Text content */}
                     <div>
-                        <h1 className={`text-xl md:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                        <h1 data-chess-gate="name" className={`text-xl md:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                             TistaMilani
                         </h1>
                         <p className={`text-sm md:text-base font-medium ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
